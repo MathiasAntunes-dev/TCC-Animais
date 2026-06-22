@@ -1,13 +1,69 @@
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="pt-BR">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ titulo }}</title>
+    <title>{% block title %}FurryHub{% endblock %}</title>
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 
-<body class="container">
-    <h1 class="mt-3">{{ titulo }}</h1>
-    {% block content %}{% endblock %}
+<body>
+
+    <header>
+        <nav class="navbar">
+
+            <div class="logo">
+                <a href="/">🐾 FurryHub</a>
+            </div>
+
+
+            <div class="menu">
+
+                <a href="/">Início</a>
+
+                {% if session.get('usuario_id') %}
+
+                <a href="/feed">Feed</a>
+                <a href="{{ url_for('meus_matches') }}">
+                    Curtidos
+                </a>
+                <a href="/logout">Sair</a>
+
+                {% else %}
+
+                <a href="/login">Login</a>
+                <a href="/cadastro">Cadastro</a>
+
+                {% endif %}
+
+            </div>
+
+        </nav>
+    </header>
+
+    <main class="container">
+
+        {% with mensagens = get_flashed_messages() %}
+        {% if mensagens %}
+        {% for mensagem in mensagens %}
+        <div class="alert">
+            {{ mensagem }}
+        </div>
+        {% endfor %}
+        {% endif %}
+        {% endwith %}
+
+        {% block content %}
+        {% endblock %}
+
+    </main>
+
+    <footer>
+        <p>© 2026 FurryHub - Encontre um novo melhor amigo 🐶🐱</p>
+    </footer>
+
 </body>
+
 </html>

@@ -1,0 +1,86 @@
+{% extends 'base.html' %}
+
+{% block title %}
+Feed de Pets - FurryHub
+{% endblock %}
+
+{% block content %}
+
+<div class="feed-header">
+
+    <h1>🐾 Pets Disponíveis para Adoção</h1>
+
+    <p>
+        Encontre um novo amigo e transforme uma vida.
+    </p>
+
+    <a href="/cadastrar_pet" class="btn">
+        + Cadastrar Pet
+    </a>
+
+</div>
+
+<div class="pets-grid">
+
+    {% if pets %}
+
+    {% for pet in pets %}
+
+    <div class="pet-card">
+
+        {% if pet.foto %}
+
+        <img src="{{ url_for('static', filename=pet.foto) }}" alt="{{ pet.nome }}" class="pet-image">
+
+        {% else %}
+
+        <img src="{{ url_for('static', filename='imagens/pet_padrao.jpg') }}" alt="Pet sem foto" class="pet-image">
+
+        {% endif %}
+
+        <div class="pet-info">
+
+            <h2>{{ pet.nome }}</h2>
+
+            <p>
+                <strong>Espécie:</strong>
+                {{ pet.especie }}
+            </p>
+
+            <p>
+                <strong>Idade:</strong>
+                {{ pet.idade }} anos
+            </p>
+
+            <p>
+                <strong>Raça:</strong>
+                {{ pet.raca }}
+            </p>
+
+            <a href="/perfil_pet/{{ pet.id }}" class="btn">
+                Ver Perfil
+            </a>
+
+        </div>
+
+    </div>
+
+    {% endfor %}
+
+    {% else %}
+
+    <div class="sem-pets">
+
+        <h2>😢 Nenhum pet cadastrado ainda</h2>
+
+        <p>
+            Seja o primeiro a cadastrar um animal para adoção.
+        </p>
+
+    </div>
+
+    {% endif %}
+
+</div>
+
+{% endblock %}
