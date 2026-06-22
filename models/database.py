@@ -1,81 +1,60 @@
-import sqlite3
-from pathlib import Path
+from sqlite3 import connect, Row
+from dotenv import load_dotenv
+import os
 
-# Caminho do banco de dados
-DB_PATH = Path("data/petbanco.sqlite3")
+load_dotenv()
+DB_PATH = os.getenv("DATABASE", "./data/forum.sqlite3")
 
+def init_db(db_name: str = DB_PATH):
+    data_dir = os.path.dirname(db_name)
 
-def conectar():
-    """
-    Cria uma conexão com o banco de dados.
-    """
-    conexao = sqlite3.connect(DB_PATH)
-    conexao.row_factory = sqlite3.Row
-    return conexao
+    if not os.path.exists(data_dir):
+        os.makedirs(data_dir, exist_ok=True)
 
-
-def criar_tabelas():
-    """
-    Cria todas as tabelas do sistema caso não existam.
-    """
-
-    conexao = conectar()
-    cursor = conexao.cursor()
-
-    # Usuários
-    cursor.execute("""
-        CREATE TABLE IF NOT EXISTS usuarios (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
+    with connect(db_name) as conn:
+        conn.execute("""
+        CREATE TABLE IF NOT EXISTS usuario (
+            id INTEGER PRIMARY KEY UNIQUE UNSIGNED AUTOINCREMENT,
             nome TEXT NOT NULL,
             email TEXT UNIQUE NOT NULL,
             senha TEXT NOT NULL,
-            criado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            data_nascimento DATE NOT NULL,
+            celular VARCHAR(11) NOT NULL,
+            cpf_cnpj VARCHAR(14)
+            tipo_conta ENUM("Pessoal", "Doador") NOT NULL,
+            cidade/estado VARCHAR(50) NOT NULL,
+            foto TEXT DEFAULT 'default.png'
         )
-    """)
+        """)
 
-    # Pets
-    cursor.execute("""
-        CREATE TABLE IF NOT EXISTS pets (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
+        conn.execute("""
+        CREATE TABLE IF NOT EXISTS pet
+            id INTEGER PRIMARY KEY UNSIGNED UNIQUE AUTOINCREMENT,
             nome TEXT NOT NULL,
-            idade INTEGER,
-            especie TEXT NOT NULL,
-            raca TEXT,
-            sexo TEXT,
-            descricao TEXT,
-            foto TEXT,
-            whatsapp TEXT NOT NULL,
-            disponivel INTEGER DEFAULT 1,
-            usuario_id INTEGER NOT NULL,
-            criado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            idade_aproximada VARCHAR(10) NOT NULL,
+            tipo VARCHAR(25) NOT NULL,
+            raca VARCHAR(30) NOT NULL,
+            porte ENUM("Pequeno", "Médio", "Grande") NOT NULL,
+            sexo ENUM("Macho", "Fêmea")
+            descricao TEXT NOT NULL,
+                     
+            FOREIGN KEY (usuario_id) REFERENCES usuario(id)
+        """)
 
-            FOREIGN KEY (usuario_id)
-            REFERENCES usuarios(id)
-        )
-    """)
+        conn.execute("""
+        CREATE TABLE IF NOT EXIST match
+        id INTERGER PRIMARY KEY UNSIGNED UNIQUE AUTOINCREMENT,
+        acao ENUM("Like", "Dislike") NOT NULL,
+        status_adocao ENUM("Pendente", "Em contato", "Concluído", "Cancelado") NOT NULL,
+        data_interacao TIMESTAMP
 
-    # Curtidas / Matches
-    cursor.execute("""
-        CREATE TABLE IF NOT EXISTS matches (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            usuario_id INTEGER NOT NULL,
-            pet_id INTEGER NOT NULL,
-            criado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (usuario_id) REFERENCES usuario(id) ON DELETE CASCADE,
+        FOREING KEY (pet_id) REFERENCES pet(id) ON DELETE CASCADE
+                              
+        """)
 
-            FOREIGN KEY (usuario_id)
-            REFERENCES usuarios(id),
-
-            FOREIGN KEY (pet_id)
-            REFERENCES pets(id)
-        )
-    """)
-
-    conexao.commit()
-    conexao.close()
-
-
-def inicializar_banco():
-    """
-    Inicializa o banco de dados.
-    """
-    criar_tabelas()
+def conectar():
+    """Retorna uma conexão configurada para retornar dicionários (Row)."""
+    conn = connect(DB_PATH)
+    conn.row_factory = Row
+    return conn

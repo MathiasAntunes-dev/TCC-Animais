@@ -1,14 +1,3 @@
 .venv/
 
 .env
-
-__pycache__/
-
-data/
-
-pyproject.toml
-
-.python-version
-
-uv.lock
-
