@@ -3,7 +3,7 @@ from dotenv import load_dotenv
 import os
 
 load_dotenv()
-DB_PATH = os.getenv("DATABASE", "./data/forum.sqlite3")
+DB_PATH = os.getenv("DATABASE", "./data/lupin.sqlite3")
 
 def init_db(db_name: str = DB_PATH):
     data_dir = os.path.dirname(db_name)
@@ -14,43 +14,44 @@ def init_db(db_name: str = DB_PATH):
     with connect(db_name) as conn:
         conn.execute("""
         CREATE TABLE IF NOT EXISTS usuario (
-            id INTEGER PRIMARY KEY UNIQUE UNSIGNED AUTOINCREMENT,
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
             nome TEXT NOT NULL,
             email TEXT UNIQUE NOT NULL,
             senha TEXT NOT NULL,
             data_nascimento DATE NOT NULL,
             celular VARCHAR(11) NOT NULL,
-            cpf_cnpj VARCHAR(14)
-            tipo_conta ENUM("Pessoal", "Doador") NOT NULL,
-            cidade/estado VARCHAR(50) NOT NULL,
+            cpf_cnpj VARCHAR(14),
+            tipo_conta CHAR(1) NOT NULL,
+            cidade_estado VARCHAR(50) NOT NULL,
             foto TEXT DEFAULT 'default.png'
         )
         """)
 
         conn.execute("""
-        CREATE TABLE IF NOT EXISTS pet
-            id INTEGER PRIMARY KEY UNSIGNED UNIQUE AUTOINCREMENT,
+        CREATE TABLE IF NOT EXISTS pet (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
             nome TEXT NOT NULL,
             idade_aproximada VARCHAR(10) NOT NULL,
             tipo VARCHAR(25) NOT NULL,
             raca VARCHAR(30) NOT NULL,
-            porte ENUM("Pequeno", "Médio", "Grande") NOT NULL,
-            sexo ENUM("Macho", "Fêmea")
+            porte TEXT NOT NULL,
+            sexo CHAR(1),
             descricao TEXT NOT NULL,
                      
-            FOREIGN KEY (usuario_id) REFERENCES usuario(id)
+            FOREIGN KEY (id) REFERENCES usuario(id)
+        )
         """)
 
         conn.execute("""
-        CREATE TABLE IF NOT EXIST match
-        id INTERGER PRIMARY KEY UNSIGNED UNIQUE AUTOINCREMENT,
-        acao ENUM("Like", "Dislike") NOT NULL,
-        status_adocao ENUM("Pendente", "Em contato", "Concluído", "Cancelado") NOT NULL,
-        data_interacao TIMESTAMP
+        CREATE TABLE IF NOT EXISTS match (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            acao CHAR(1) NOT NULL,
+            status_adocao TEXT NOT NULL,
+            data_interacao TIMESTAMP NOT NULL,
 
-        FOREIGN KEY (usuario_id) REFERENCES usuario(id) ON DELETE CASCADE,
-        FOREING KEY (pet_id) REFERENCES pet(id) ON DELETE CASCADE
-                              
+            FOREIGN KEY (id) REFERENCES usuario(id) ON DELETE CASCADE,
+            FOREIGN KEY (id) REFERENCES pet(id) ON DELETE CASCADE
+        )
         """)
 
 def conectar():

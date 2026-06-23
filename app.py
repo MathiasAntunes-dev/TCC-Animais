@@ -14,11 +14,19 @@ os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
 init_db()
 
-
 @app.route("/")
 def home():
-    return render_template("home.html")
+    return render_template('home.html')
 
-# @app.route("/cadastro")
+@app.route("/faq")
+def faq():
+    return render_template('faq.html')
 
+@app.route("/sobreProjeto")
+def sobreProjeto():
+    return render_template('sobreProjeto.html')
+
+@app.route("/login")
+def login():
+    return render_template('login.html')
 

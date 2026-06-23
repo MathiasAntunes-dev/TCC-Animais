@@ -2,6 +2,17 @@
 
 {% block content %}
 
-    
+    <section class="logo-home">
+        <img src="{{ url_for('static', filename='logo.jpg') }}" alt="Logo do site">
+        <h1>Doador</h1>
+        <h1>Adotande</h1>
+        <a href="{{ url_for('login') }}">ENTRAR</a>
+    </section>
+
+    <footer class="rodape">
+        <a href="{{ url_for('sobreProjeto') }}">Sobre o Projeto</a>
+        <h2>© Lupin 2026. Todos os direitos reservados.</h2>
+        <a href="{{ url_for('faq') }}">Perguntas Frequentes</a>
+    </footer>
 
 {% endblock %}
